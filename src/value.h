@@ -8,7 +8,7 @@ typedef double Value;
 typedef struct {
     int capacity;
     int count;
-    Value *values;
+    Value* values;
 } ValueArray;
 
 /*
@@ -16,21 +16,21 @@ typedef struct {
  *
  * @param ValueArray *array the ValueArray to be initialised.
  */
-void initValueArray(ValueArray *array);
+void initValueArray(ValueArray* array);
 
 /*
  * Writes to a ValueArray.
  *
  * @param ValueArray *array the ValueArray to be written to.
  */
-void writeValueArray(ValueArray *array, Value value);
+void writeValueArray(ValueArray* array, Value value);
 
 /*
  * Frees the ValueArray.
  *
  * @param ValueArray *array the ValueArray that is to be freed.
  */
-void freeValueArray(ValueArray *array);
+void freeValueArray(ValueArray* array);
 
 /*
  * Prints the value.

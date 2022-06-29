@@ -18,8 +18,8 @@ typedef enum {
 typedef struct {
     int count;
     int capacity;
-    uint8_t *code;
-    int *lines;
+    uint8_t* code;
+    int* lines;
     ValueArray constants;
 } Chunk;
 
@@ -28,14 +28,14 @@ typedef struct {
  *
  * @param Chunk *chunk the chunk being pointed to.
  */
-void initChunk(Chunk *chunk);
+void initChunk(Chunk* chunk);
 
 /*
  * Free the code chunk.
  *
  * @param Chunk *chunk the chunk to be freed.
  */
-void freeChunk(Chunk *chunk);
+void freeChunk(Chunk* chunk);
 
 /*
  * Append a byte to the end of the chunk.
@@ -44,7 +44,7 @@ void freeChunk(Chunk *chunk);
  * @param uint8_t byte the byte opcode that is being appended.
  * @param int line the line number that the instruction is at.
  */
-void writeChunk(Chunk *chunk, uint8_t byte, int line);
+void writeChunk(Chunk* chunk, uint8_t byte, int line);
 
 /*
  * Convenience method to add a constant to constant-pool.
@@ -52,6 +52,6 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line);
  * @param Chunk *chunk the bytecode chunk to add a new constant to.
  * @param Value value the new value to add.
  */
-int addConstant(Chunk *chunk, Value value);
+int addConstant(Chunk* chunk, Value value);
 
 #endif

@@ -2,7 +2,7 @@
 #include "common.h"
 #include "debug.h"
 
-int main(int argc, const char *argv[]) {
+int main(int argc, const char* argv[]) {
     Chunk chunk;
     initChunk(&chunk);
 

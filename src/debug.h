@@ -10,7 +10,7 @@
  * @param Chunk *chunk the chunk to be disassembled.
  * @param const char *name the name of the chunk being disassembled.
  */
-void disassembleChunk(Chunk *chunk, const char *name);
+void disassembleChunk(Chunk* chunk, const char* name);
 
 /*
  * Disassemble a specific bytecode instruction.
@@ -20,6 +20,6 @@ void disassembleChunk(Chunk *chunk, const char *name);
  * @param int offset the offset required to find the instruction in the bytecode
  * chunk.
  */
-int disassembleInstruction(Chunk *chunk, int offset);
+int disassembleInstruction(Chunk* chunk, int offset);
 
 #endif
