@@ -56,6 +56,7 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line);
  *
  * @param Chunk *chunk the bytecode chunk to add a new constant to.
  * @param Value value the new value to add.
+ * @returns int returns the current constant pool count.
  */
 int addConstant(Chunk* chunk, Value value);
 
