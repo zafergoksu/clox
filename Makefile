@@ -45,6 +45,6 @@ clox:
 	# @ cp build/clox clox # For convenience, copy the interpreter to the top level.
 
 clean:
-	$(RM) build/debug/*.o build/release/*.o
+	$(RM) -r build/*
 
 .PHONY: default, debug, clox, clean

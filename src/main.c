@@ -5,6 +5,12 @@
 #include "common.h"
 #include "vm.h"
 
+/* Scanner (lexical analysis, generate tokens) ->
+ * Compiler (semantic analysis, generate bytecode based on tokens and their
+ * order using table based Pratt parser that emphasises precedence in operation
+ * order based on prefix and infix operations) ->
+ * Virtual Machine(interpret the instructions and generate an output).
+ */
 static void repl() {
     char line[1024];
 
