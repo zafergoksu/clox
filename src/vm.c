@@ -72,7 +72,22 @@ static InterpretResult run() {
         case OP_POP:
             pop();
             break;
+        case OP_GET_LOCAL: {
+            // We read the opcode, then the operand.
+            // Operand is the slot, the operand is the index to where on the
+            // stack the local variable lives.
+            uint8_t slot = READ_BYTE();
+            push(vm.stack[slot]);
+            break;
+        }
+        case OP_SET_LOCAL: {
+            uint8_t slot = READ_BYTE();
+            vm.stack[slot] = peek(0);
+            break;
+        }
         case OP_GET_GLOBAL: {
+            // The name holds the index, then we create an ObjString which holds
+            // the string where the operand was indexing to.
             ObjString* name = READ_STRING();
             Value value;
             if (!tableGet(&vm.globals, name, &value)) {
