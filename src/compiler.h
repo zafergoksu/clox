@@ -9,6 +9,6 @@
  *
  * @param const char* source the pointer to the source string.
  */
-bool compile(const char* source, Chunk* chunk);
+ObjFunction* compile(const char* source);
 
 #endif
