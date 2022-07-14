@@ -1,3 +1,3 @@
-# clox
+# A `clox` bytecode VM language
 
 This is the implementation of `clox` from [Crafting Interpreters](http://craftinginterpreters.com/) by Robert Nystrom.
