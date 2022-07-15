@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "common.h"
 #include "compiler.h"
@@ -10,6 +11,10 @@
 #include "vm.h"
 
 VM vm;
+
+static Value clockNative(int argCount, Value* args) {
+    return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+}
 
 static Value peek(int distance);
 static bool callValue(Value callee, int argCount);
@@ -199,8 +204,17 @@ static InterpretResult run() {
             break;
         }
         case OP_RETURN: {
-            // Exit interpreter.
-            return INTERPRET_OK;
+            Value result = pop();
+            vm.frameCount--;
+            if (vm.frameCount == 0) {
+                pop();
+                return INTERPRET_OK;
+            }
+
+            vm.stackTop = frame->slots;
+            push(result);
+            frame = &vm.frames[vm.frameCount - 1];
+            break;
         }
         }
     }
@@ -225,11 +239,26 @@ static void runtimeError(const char* format, ...) {
     va_end(args);
     fputs("\n", stderr);
 
-    CallFrame* frame = &vm.frames[vm.frameCount - 1];
-    size_t instruction = frame->ip - frame->function->chunk.code - 1;
-    int line = frame->function->chunk.lines[instruction];
-    fprintf(stderr, "[line %d] in script\n", line);
+    for (int i = vm.frameCount - 1; i >= 0; i--) {
+        CallFrame* frame = &vm.frames[i];
+        ObjFunction* function = frame->function;
+        size_t instruction = frame->ip - function->chunk.code - 1;
+        fprintf(stderr, "[line %d] in ", function->chunk.lines[instruction]);
+        if (function->name == NULL) {
+            fprintf(stderr, "script\n");
+        } else {
+            fprintf(stderr, "%s()\n", function->name->chars);
+        }
+    }
     resetStack();
+}
+
+static void defineNative(const char* name, NativeFn function) {
+    push(OBJ_VAL(copyString(name, (int)strlen(name))));
+    push(OBJ_VAL(newNative(function)));
+    tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
+    pop();
+    pop();
 }
 
 void initVM() {
@@ -238,6 +267,8 @@ void initVM() {
 
     initTable(&vm.globals);
     initTable(&vm.strings);
+
+    defineNative("clock", clockNative);
 }
 
 void freeVM() {
@@ -261,6 +292,16 @@ static Value peek(int distance) {
 }
 
 static bool call(ObjFunction* function, int argCount) {
+    if (argCount != function->arity) {
+        runtimeError("Expected %d arguments but got %d.", function->arity,
+                     argCount);
+        return false;
+    }
+
+    if (vm.frameCount == FRAMES_MAX) {
+        runtimeError("Stack overflow.");
+        return false;
+    }
     // Next available CallFrame.
     CallFrame* frame = &vm.frames[vm.frameCount++];
     frame->function = function;
@@ -274,6 +315,13 @@ static bool callValue(Value callee, int argCount) {
         switch (OBJ_TYPE(callee)) {
         case OBJ_FUNCTION:
             return call(AS_FUNCTION(callee), argCount);
+        case OBJ_NATIVE: {
+            NativeFn native = AS_NATIVE(callee);
+            Value result = native(argCount, vm.stackTop - argCount);
+            vm.stackTop -= argCount + 1;
+            push(result);
+            return true;
+        }
         default:
             break; // Non-callable object type.
         }
