@@ -25,6 +25,9 @@
  * @param size_t newSize the new size of the chunk.
  */
 void* reallocate(void* pointer, size_t oldSize, size_t newSize);
-
+void markObject(Obj* obj);
+void markValue(Value value);
+void collectGarbage();
 void freeObjects();
+
 #endif
