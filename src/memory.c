@@ -218,5 +218,5 @@ void freeObjects() {
         object = next;
     }
 
-    free(vm.stack);
+    free(vm.grayStack);
 }
