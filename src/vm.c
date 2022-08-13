@@ -21,6 +21,7 @@ static bool callValue(Value callee, int argCount);
 static void runtimeError(const char* format, ...);
 static ObjUpvalue* captureUpvalue(Value* local);
 static void closeUpvalues(Value* last);
+static void defineMethod(ObjString* name);
 static bool isFalsey(Value value);
 static void concatenate();
 
@@ -285,6 +286,9 @@ static InterpretResult run() {
         case OP_CLASS:
             push(OBJ_VAL(newClass(READ_STRING())));
             break;
+        case OP_METHOD:
+            defineMethod(READ_STRING());
+            break;
         }
     }
 #undef READ_BYTE
@@ -445,6 +449,13 @@ static void closeUpvalues(Value* last) {
         upvalue->location = &upvalue->closed;
         vm.openUpvalues = upvalue->next;
     }
+}
+
+static void defineMethod(ObjString* name) {
+    Value method = peek(0);
+    ObjClass* klass = AS_CLASS(peek(1));
+    tableSet(&klass->methods, name, method);
+    pop();
 }
 
 static bool isFalsey(Value value) {
