@@ -18,6 +18,7 @@ static Value clockNative(int argCount, Value* args) {
 
 static Value peek(int distance);
 static bool callValue(Value callee, int argCount);
+static bool bindMethod(ObjClass* klass, ObjString* name);
 static void runtimeError(const char* format, ...);
 static ObjUpvalue* captureUpvalue(Value* local);
 static void closeUpvalues(Value* last);
@@ -159,8 +160,10 @@ static InterpretResult run() {
                 break;
             }
 
-            runtimeError("Undefined property '%s'.", name->chars);
-            return INTERPRET_RUNTIME_ERROR;
+            if (!bindMethod(instance->klass, name)) {
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            break;
         }
         case OP_SET_PROPERTY: {
             if (!IS_INSTANCE(peek(1))) {
@@ -393,6 +396,10 @@ static bool call(ObjClosure* closure, int argCount) {
 static bool callValue(Value callee, int argCount) {
     if (IS_OBJ(callee)) {
         switch (OBJ_TYPE(callee)) {
+        case OBJ_BOUND_METHOD: {
+            ObjBoundMethod* bound = AS_BOUND_METHOD(callee);
+            return call(bound->method, argCount);
+        }
         case OBJ_CLASS: {
             // Treat a call for a class to create an instance, replace it with
             // that instance.
@@ -416,6 +423,19 @@ static bool callValue(Value callee, int argCount) {
 
     runtimeError("Can only call function and classes.");
     return false;
+}
+
+static bool bindMethod(ObjClass* klass, ObjString* name) {
+    Value method;
+    if (!tableGet(&klass->methods, name, &method)) {
+        runtimeError("Undefined property '%s'.", name->chars);
+    }
+
+    ObjBoundMethod* bound = newBoundMethod(peek(0), AS_CLOSURE(method));
+
+    pop();
+    push(OBJ_VAL(bound));
+    return true;
 }
 
 static ObjUpvalue* captureUpvalue(Value* local) {
