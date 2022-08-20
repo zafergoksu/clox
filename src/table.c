@@ -20,7 +20,9 @@ void freeTable(Table* table) {
 }
 
 Entry* findEntry(Entry* entries, int capacity, ObjString* key) {
-    uint32_t index = key->hash % capacity;
+    // Since we grow by a factor of two, the modulo can be reimplemented as a
+    // bitwise AND of the dividend and divisor - 1, this is bit-masking.
+    uint32_t index = key->hash & (capacity - 1);
     Entry* tombstone = NULL;
 
     for (;;) {
@@ -41,7 +43,7 @@ Entry* findEntry(Entry* entries, int capacity, ObjString* key) {
             return entry;
         }
 
-        index = (index + 1) % capacity;
+        index = (index + 1) & (capacity - 1);
     }
 }
 
@@ -136,7 +138,7 @@ ObjString* tableFindString(Table* table, const char* chars, int length,
         return NULL;
     }
 
-    uint32_t index = hash % table->capacity;
+    uint32_t index = hash & (table->capacity - 1);
 
     for (;;) {
         Entry* entry = &table->entries[index];
