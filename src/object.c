@@ -53,7 +53,7 @@ ObjClosure* newClosure(ObjFunction* function) {
     return closure;
 }
 
-ObjFunction* newFunction() {
+ObjFunction* newFunction(void) {
     ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
     function->arity = 0;
     function->upvalueCount = 0;

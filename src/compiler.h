@@ -10,6 +10,6 @@
  * @param const char* source the pointer to the source string.
  */
 ObjFunction* compile(const char* source);
-void markCompilerRoots();
+void markCompilerRoots(void);
 
 #endif

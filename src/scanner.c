@@ -12,20 +12,20 @@ typedef struct {
 
 Scanner scanner;
 
-static bool isAtEnd() {
+static bool isAtEnd(void) {
     return *scanner.current == '\0';
 }
 
-static char advance() {
+static char advance(void) {
     scanner.current++;
     return scanner.current[-1];
 }
 
-static char peek() {
+static char peek(void) {
     return *scanner.current;
 }
 
-static char peekNext() {
+static char peekNext(void) {
     if (isAtEnd()) {
         return '\0';
     }
@@ -64,7 +64,7 @@ static Token errorToken(const char* message) {
     return token;
 }
 
-static void skipWhitespace() {
+static void skipWhitespace(void) {
     for (;;) {
         char c = peek();
         switch (c) {
@@ -97,7 +97,7 @@ static bool isDigit(char c) {
     return c >= '0' && c <= '9';
 }
 
-static Token number() {
+static Token number(void) {
     while (isDigit(peek())) {
         advance();
     }
@@ -115,7 +115,7 @@ static Token number() {
     return makeToken(TOKEN_NUMBER);
 }
 
-static Token string() {
+static Token string(void) {
     while (peek() != '"' && !isAtEnd()) {
         if (peek() == '\n') {
             scanner.line++;
@@ -153,7 +153,7 @@ static TokenType checkKeyword(int start, int length, const char* rest,
     return TOKEN_IDENTIFIER;
 }
 
-static TokenType identifierType() {
+static TokenType identifierType(void) {
     switch (scanner.start[0]) {
     case 'a':
         return checkKeyword(1, 2, "nd", TOKEN_AND);
@@ -204,7 +204,7 @@ static TokenType identifierType() {
     return TOKEN_IDENTIFIER;
 }
 
-static Token identifier() {
+static Token identifier(void) {
     while (isAlpha(peek()) || isDigit(peek())) {
         advance();
     }
@@ -212,7 +212,7 @@ static Token identifier() {
     return makeToken(identifierType());
 }
 
-Token scanToken() {
+Token scanToken(void) {
     skipWhitespace();
     scanner.start = scanner.current;
 

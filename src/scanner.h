@@ -69,6 +69,6 @@ void initScanner(const char* source);
 /*
  * Generates a token by scanning for a token.
  */
-Token scanToken();
+Token scanToken(void);
 
 #endif

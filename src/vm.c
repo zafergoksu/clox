@@ -27,9 +27,9 @@ static ObjUpvalue* captureUpvalue(Value* local);
 static void closeUpvalues(Value* last);
 static void defineMethod(ObjString* name);
 static bool isFalsey(Value value);
-static void concatenate();
+static void concatenate(void);
 
-static InterpretResult run() {
+static InterpretResult run(void) {
     CallFrame* frame = &vm.frames[vm.frameCount - 1];
     // Since `ip` is a direct pointer, when we increment we access the next byte
     // of code since it's just a pointer to the code array. Since dereferencing
@@ -343,7 +343,7 @@ static InterpretResult run() {
 #undef BINARY_OP
 }
 
-static void resetStack() {
+static void resetStack(void) {
     // `stackTop` is a direct pointer of the next available space in the VM
     // stack.
     vm.stackTop = vm.stack;
@@ -380,7 +380,7 @@ static void defineNative(const char* name, NativeFn function) {
     pop();
 }
 
-void initVM() {
+void initVM(void) {
     resetStack();
     vm.objects = NULL;
     vm.bytesAllocated = 0;
@@ -399,7 +399,7 @@ void initVM() {
     defineNative("clock", clockNative);
 }
 
-void freeVM() {
+void freeVM(void) {
     freeTable(&vm.globals);
     freeTable(&vm.strings);
     vm.initString = NULL;
@@ -411,7 +411,7 @@ void push(Value value) {
     vm.stackTop++;
 }
 
-Value pop() {
+Value pop(void) {
     vm.stackTop--;
     return *vm.stackTop;
 }
@@ -567,7 +567,7 @@ static bool isFalsey(Value value) {
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 
-static void concatenate() {
+static void concatenate(void) {
     ObjString* b = AS_STRING(peek(0));
     ObjString* a = AS_STRING(peek(1));
 

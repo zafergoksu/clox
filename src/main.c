@@ -11,7 +11,7 @@
  * order based on prefix and infix operations) ->
  * Virtual Machine(interpret the instructions and generate an output).
  */
-static void repl() {
+static void repl(void) {
     char line[1024];
 
     for (;;) {

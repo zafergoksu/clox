@@ -78,7 +78,7 @@ Parser parser;
 Compiler* current = NULL;
 ClassCompiler* currentClass = NULL;
 
-static Chunk* currentChunk() {
+static Chunk* currentChunk(void) {
     return &current->function->chunk;
 }
 
@@ -110,7 +110,7 @@ static void errorAtCurrent(const char* message) {
     errorAt(&parser.current, message);
 }
 
-static void advance() {
+static void advance(void) {
     parser.previous = parser.current;
 
     for (;;) {
@@ -175,7 +175,7 @@ static int emitJump(uint8_t instruction) {
     return currentChunk()->count - 2;
 }
 
-static void emitReturn() {
+static void emitReturn(void) {
     if (current->type == TYPE_INITIALIZER) {
         emitBytes(OP_GET_LOCAL, 0);
     } else {
@@ -240,7 +240,7 @@ static void initCompiler(Compiler* compiler, FunctionType type) {
     }
 }
 
-static ObjFunction* endCompiler() {
+static ObjFunction* endCompiler(void) {
     emitReturn();
     ObjFunction* function = current->function;
 #ifdef DEBUG_PRINT_CODE
@@ -255,11 +255,11 @@ static ObjFunction* endCompiler() {
     return function;
 }
 
-static void beginScope() {
+static void beginScope(void) {
     current->scopeDepth++;
 }
 
-static void endScope() {
+static void endScope(void) {
     current->scopeDepth--;
 
     // Pop a scope. We see if the local count is greater than 0 and that
@@ -278,9 +278,9 @@ static void endScope() {
 }
 
 // Static declarations;
-static void expression();
-static void statement();
-static void declaration();
+static void expression(void);
+static void statement(void);
+static void declaration(void);
 static uint8_t identifierConstant(Token* name);
 static ParseRule* getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
@@ -343,7 +343,7 @@ static void binary(bool canAssign) {
     }
 }
 
-static uint8_t argumentList() {
+static uint8_t argumentList(void) {
     uint8_t argCount = 0;
     if (!check(TOKEN_RIGHT_PAREN)) {
         do {
@@ -675,7 +675,7 @@ static void addLocal(Token name) {
     local->isCaptured = false;
 }
 
-static void declareVariable() {
+static void declareVariable(void) {
     // Global variable depth, assign to hash table instead.
     if (current->scopeDepth == 0) {
         return;
@@ -711,7 +711,7 @@ static uint8_t parseVariable(const char* errorMessage) {
     return identifierConstant(&parser.previous);
 }
 
-static void markInitialized() {
+static void markInitialized(void) {
     if (current->scopeDepth == 0) {
         return;
     }
@@ -728,11 +728,11 @@ static void defineVariable(uint8_t global) {
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
-static void expression() {
+static void expression(void) {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
-static void block() {
+static void block(void) {
     while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
         declaration();
     }
@@ -773,7 +773,7 @@ static void function(FunctionType type) {
     }
 }
 
-static void method() {
+static void method(void) {
     consume(TOKEN_IDENTIFIER, "Expect method name.");
     uint8_t constant = identifierConstant(&parser.previous);
 
@@ -787,7 +787,7 @@ static void method() {
     emitBytes(OP_METHOD, constant);
 }
 
-static void classDeclaration() {
+static void classDeclaration(void) {
     consume(TOKEN_IDENTIFIER, "Expect class name.");
     Token className = parser.previous;
     uint8_t nameConstant = identifierConstant(&parser.previous);
@@ -836,14 +836,14 @@ static void classDeclaration() {
     currentClass = currentClass->enclosing;
 }
 
-static void funDeclaration() {
+static void funDeclaration(void) {
     uint8_t global = parseVariable("Expect function name.");
     markInitialized();
     function(TYPE_FUNCTION);
     defineVariable(global);
 }
 
-static void varDeclaration() {
+static void varDeclaration(void) {
     uint8_t global = parseVariable("Expect variable name.");
 
     if (match(TOKEN_EQUAL)) {
@@ -857,13 +857,13 @@ static void varDeclaration() {
     defineVariable(global);
 }
 
-static void expressionStatement() {
+static void expressionStatement(void) {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
     emitByte(OP_POP);
 }
 
-static void forStatement() {
+static void forStatement(void) {
     beginScope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
     if (match(TOKEN_SEMICOLON)) {
@@ -910,7 +910,7 @@ static void forStatement() {
     endScope();
 }
 
-static void ifStatement() {
+static void ifStatement(void) {
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
     expression();
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
@@ -931,13 +931,13 @@ static void ifStatement() {
     patchJump(elseJump);
 }
 
-static void printStatement() {
+static void printStatement(void) {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after value.");
     emitByte(OP_PRINT);
 }
 
-static void returnStatement() {
+static void returnStatement(void) {
     if (current->type == TYPE_SCRIPT) {
         error("Can't return from top-level code.");
     }
@@ -955,7 +955,7 @@ static void returnStatement() {
     }
 }
 
-static void whileStatement() {
+static void whileStatement(void) {
     int loopStart = currentChunk()->count;
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
     expression();
@@ -970,7 +970,7 @@ static void whileStatement() {
     emitByte(OP_POP);
 }
 
-static void synchronize() {
+static void synchronize(void) {
     parser.panicMode = false;
 
     while (parser.current.type != TOKEN_EOF) {
@@ -997,7 +997,7 @@ static void synchronize() {
     }
 }
 
-static void declaration() {
+static void declaration(void) {
     if (match(TOKEN_CLASS)) {
         classDeclaration();
     } else if (match(TOKEN_FUN)) {
@@ -1013,7 +1013,7 @@ static void declaration() {
     }
 }
 
-static void statement() {
+static void statement(void) {
     if (match(TOKEN_PRINT)) {
         printStatement();
     } else if (match(TOKEN_FOR)) {
@@ -1055,7 +1055,7 @@ ObjFunction* compile(const char* source) {
     return parser.hadError ? NULL : function;
 }
 
-void markCompilerRoots() {
+void markCompilerRoots(void) {
     Compiler* compiler = current;
     while (compiler != NULL) {
         markObject((Obj*)compiler->function);

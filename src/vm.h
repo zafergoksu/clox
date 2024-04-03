@@ -45,12 +45,12 @@ extern VM vm;
 /*
  * Initialises the VM.
  */
-void initVM();
+void initVM(void);
 
 /*
  * Clears the memory of the VM.
  */
-void freeVM();
+void freeVM(void);
 
 /*
  * Interprets a chunk of bytecode.
@@ -65,6 +65,6 @@ void push(Value value);
 /*
  * Pops a value off from the VM stack.
  */
-Value pop();
+Value pop(void);
 
 #endif
